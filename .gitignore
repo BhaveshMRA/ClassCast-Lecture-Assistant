@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+.env
+.DS_Store
+classcast.log
+recordings/test_*.pptx
+recordings/~$*.pptx
+backend/test_*.py
