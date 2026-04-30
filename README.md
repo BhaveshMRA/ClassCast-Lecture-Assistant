@@ -4,6 +4,8 @@
 
 ClassCast listens to a professor speak, transcribes the audio locally with [faster-whisper](https://github.com/SYSTRAN/faster-whisper), identifies the key concept being taught, and instantly broadcasts an animated HTML visual + plain-English summary to every connected student — no app install, no account, just a browser tab.
 
+It also supports direct PPTX/PDF slide uploads, generating real-time summaries and visuals for each slide bypassing the audio transcription phase.
+
 ---
 
 ## How it works
@@ -15,12 +17,12 @@ Instructor mic / WAV upload
   [faster-whisper]        ← runs locally, no cloud STT cost
          │ transcript chunks
          ▼
-  [LangGraph pipeline]
+  [LangGraph pipeline] ◄── Instructor Slide Upload (PPTX/PDF)
     ├─ batch_accumulator  ← buffers 2-3 sentences
-    ├─ concept_extractor  ← Gemini Flash classifies: TECHNICAL / EXAMPLE / ADMIN / JOKE
+    ├─ concept_extractor  ← Gemini 2.5 Flash classifies: TECHNICAL / EXAMPLE / ADMIN / JOKE
     ├─ decision_router    ← skips jokes & admin; routes to summarize or visualize
-    ├─ summary_generator  ← Gemini Flash → plain-English summary (~300 ms)
-    └─ visual_generator   ← Gemini Pro → animated HTML snippet (~2-3 s)
+    ├─ summary_generator  ← Gemini 2.5 Flash → plain-English summary (~300 ms)
+    └─ visual_generator   ← Claude Haiku 4.5 → animated HTML snippet (~2-3 s)
          │ SSE events
          ▼
   Student browsers        ← EventSource auto-reconnects; no WebSocket needed
@@ -35,7 +37,8 @@ Instructor mic / WAV upload
 | Backend | Python 3.11+, FastAPI, Uvicorn |
 | Transcription | faster-whisper (CTranslate2, runs on CPU) |
 | Pipeline | LangGraph + LangChain Core |
-| AI | Google Gemini Flash (fast path) + Gemini Pro (visuals) |
+| AI (Speed) | Google Gemini 2.5 Flash via OpenRouter |
+| AI (Code) | Anthropic Claude Haiku 4.5 via OpenRouter |
 | Frontend | Vanilla HTML/JS — zero build step |
 | Realtime | Server-Sent Events (SSE) |
 | Mic capture | Web Audio API + AudioWorklet → raw PCM over WebSocket |
@@ -67,27 +70,29 @@ classcast/
 │       │   └── visual_generator.py
 │       ├── services/
 │       │   ├── whisper.py           ← faster-whisper singleton
-│       │   └── gemini.py            ← Gemini Flash + Pro clients
+│       │   └── gemini.py            ← OpenRouter API client
 │       ├── routes/
 │       │   ├── stream.py            ← GET /stream  (SSE)
 │       │   ├── audio.py             ← POST /ingest/audio  (WAV upload)
+│       │   ├── slides.py            ← POST /ingest/slides (PPTX/PDF upload)
 │       │   └── ws_audio.py          ← WS /ingest/ws  (live mic)
 │       └── utils/
-│           └── audio.py             ← WAV decoding + PCM helpers
+│           ├── audio.py             ← WAV decoding + PCM helpers
+│           └── slides.py            ← PPTX/PDF text extraction
 ├── frontend/
-│   ├── index.html                   ← student view
-│   └── instructor.html              ← instructor controls
+│   ├── index.html                   ← student view (w/ live mic status)
+│   └── instructor.html              ← instructor controls (w/ live AI transcript)
 └── recordings/
-    └── README.md                    ← drop test WAV files here
+    └── README.md                    ← drop test WAV/PPTX files here
 ```
 
 ---
 
 ## Quick start (single machine)
 
-### 1. Get a Gemini API key
+### 1. Get an OpenRouter API key
 
-Go to https://aistudio.google.com/apikey → **Create API key** → copy it.
+Go to https://openrouter.ai/keys → **Create Key** → copy it.
 
 ### 2. Start the backend
 
@@ -103,10 +108,7 @@ pip install -r requirements.txt
 
 # Create your .env file and add your API key
 cp .env.example .env
-# Open .env and set: GEMINI_API_KEY=your_key_here
-
-# Start the server
-uvicorn app.main:app --reload --port 8000
+# Open .env and set: OPENROUTER_API_KEY=sk-or-your_key_here
 ```
 
 ### 3. Serve the frontend
@@ -125,7 +127,7 @@ python3 -m http.server 5500
 | Instructor | http://localhost:5500/instructor.html |
 | Student(s) | http://localhost:5500 |
 
-Click **Start mic** on the instructor page and speak. Summaries and visuals appear on the student page within seconds.
+Click **Start mic** on the instructor page and speak. You will see what the AI hears directly on your screen. Summaries and visuals will automatically appear on the student page within seconds.
 
 ---
 
@@ -147,14 +149,14 @@ Copy `.env.example` to `.env` and fill in:
 
 | Variable | Default | Description |
 |---|---|---|
-| `GEMINI_API_KEY` | *(required)* | Your Google AI Studio key |
-| `GEMINI_FLASH_MODEL` | `gemini-2.0-flash-exp` | Model for fast paths (extraction, summary) |
-| `GEMINI_PRO_MODEL` | `gemini-1.5-pro` | Model for visual HTML generation |
+| `OPENROUTER_API_KEY` | *(required)* | Your OpenRouter API key |
+| `OPENROUTER_FLASH_MODEL` | `google/gemini-2.5-flash` | Fast model for extraction & summaries |
+| `OPENROUTER_PRO_MODEL` | `anthropic/claude-haiku-4.5` | Smart model for HTML visual generation |
 | `WHISPER_MODEL` | `base` | `tiny` / `base` / `small` / `medium` / `large` |
 | `WHISPER_DEVICE` | `cpu` | `cpu` or `cuda` |
 | `BATCH_SENTENCE_COUNT` | `2` | Sentences to buffer before pipeline fires |
 | `BATCH_TIMEOUT_SECONDS` | `8.0` | Max seconds to wait before force-flushing buffer |
-| `CONCEPT_CONFIDENCE_THRESHOLD` | `0.5` | Min Gemini confidence to trigger a visual |
+| `CONCEPT_CONFIDENCE_THRESHOLD` | `0.5` | Min AI confidence to trigger a visual |
 
 ---
 
@@ -164,9 +166,9 @@ Copy `.env.example` to `.env` and fill in:
 |---|---|---|
 | `GET` | `/stream` | SSE stream — students connect here |
 | `POST` | `/ingest/audio` | Upload a WAV file (multipart/form-data) |
+| `POST` | `/ingest/slides` | Upload a PPTX or PDF file |
 | `WS` | `/ingest/ws` | Live mic stream (raw int16 PCM @ 16 kHz) |
 | `GET` | `/health` | Health check + connected client count |
-| `POST` | `/test/publish` | Manually broadcast any JSON payload |
 
 ---
 
@@ -179,6 +181,8 @@ The student frontend listens for these named events:
 | `heartbeat` | `tick`, `timestamp`, `clients` | Every 2 seconds |
 | `summary` | `concept`, `text`, `timestamp` | ~300 ms after concept detected |
 | `visual` | `concept`, `html`, `timestamp` | ~2-3 s after concept detected |
+| `transcript` | `text` | Raw live transcription chunk |
+| `mic_status` | `status` | Updates green badge when prof connects |
 | `audit` | `concept`, `concept_type`, `confidence`, `action`, `reason` | Every flushed batch |
 
 ---
@@ -191,25 +195,7 @@ source .venv/bin/activate
 pytest tests/ -v
 ```
 
-Tests use mocked Gemini responses — **no API key required**.
-
----
-
-## Manual smoke test
-
-With the backend running:
-
-```bash
-# 1. Confirm SSE works
-curl -X POST localhost:8000/test/publish \
-  -H "Content-Type: application/json" \
-  -d '{"message": "hello from curl"}'
-# → should instantly appear in every open student tab
-
-# 2. Upload a test WAV
-curl -F "file=@recordings/your_lecture.wav" localhost:8000/ingest/audio
-# → watch backend logs + student tab for events
-```
+Tests use mocked AI responses — **no API key required**.
 
 ---
 
@@ -217,10 +203,9 @@ curl -F "file=@recordings/your_lecture.wav" localhost:8000/ingest/audio
 
 - **SSE over WebSocket for students** — one-way push, native auto-reconnect, no library needed.
 - **AudioWorklet + raw PCM** for live mic — avoids ffmpeg dependency on the server; the browser downsamples from 48 kHz to 16 kHz before sending.
-- **Singleton Whisper model** pre-warmed at startup via `lifespan` — first transcription is fast.
-- **Two-phase render via `asyncio.gather`** — summary (Flash, ~300 ms) and visual (Pro, ~2-3 s) run concurrently so students never see a blank screen.
-- **Sandboxed iframe** for visuals — Gemini-generated HTML runs with `sandbox="allow-scripts"` so it can animate but cannot access the parent page.
-- **Module-level batch buffer** — single-room singleton, easy to key by `session_id` for multi-instructor later.
+- **Non-blocking Whisper** — Whisper transcription runs in an isolated background task, preventing WebSocket starvation and dropouts.
+- **Two-phase render via `asyncio.gather`** — summary (Flash, ~300 ms) and visual (Haiku, ~2-3 s) run concurrently so students never see a blank screen.
+- **Sandboxed iframe** for visuals — AI-generated HTML runs with `sandbox="allow-scripts"` so it can animate safely.
 
 ---
 
@@ -229,7 +214,7 @@ curl -F "file=@recordings/your_lecture.wav" localhost:8000/ingest/audio
 - Single classroom only — no per-room isolation
 - No authentication — open to anyone on the network
 - No persistent storage — audit events are broadcast-only, in-memory
-- No RAG — concept extractor uses Gemini only, not course materials
+- No RAG — concept extractor uses AI only, not course materials
 - No speaker diarization — assumes professor-only mic input
 
 ---
