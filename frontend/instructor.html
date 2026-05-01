@@ -1,105 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <title>ClassCast — Instructor</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-      margin: 0;
-      padding: 24px;
-      background: #f5f5f4;
-      color: #1c1c1c;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      font-size: 22px;
-      font-weight: 600;
-      margin: 0 0 16px 0;
-    }
-
-    .panel {
-      background: white;
-      border: 1px solid #e5e5e3;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-
-    .panel h2 {
-      font-size: 14px;
-      font-weight: 600;
-      margin: 0 0 12px 0;
-      color: #555;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    button {
-      padding: 10px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      border: 1px solid #d4d4d2;
-      border-radius: 8px;
-      background: white;
-      color: #1c1c1c;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #f5f5f4;
-    }
-
-    button.primary {
-      background: #1a3e7e;
-      color: white;
-      border-color: #1a3e7e;
-    }
-
-    button.primary:hover {
-      background: #143263;
-    }
-
-    button.danger {
-      background: #a32d2d;
-      color: white;
-      border-color: #a32d2d;
-    }
-
-    input[type="file"] {
-      font-size: 14px;
-    }
-
-    #mic-status {
-      margin-top: 12px;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      background: #fafaf9;
-      color: #555;
-    }
-
-    .recording {
-      background: #ffe8e8 !important;
-      color: #a32d2d !important;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>ClassCast — Instructor</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    margin: 0; padding: 24px;
+    background: #f5f5f4; color: #1c1c1c;
+    max-width: 700px; margin: 0 auto;
+  }
+  h1 { font-size: 22px; font-weight: 600; margin: 0 0 16px 0; }
+  .panel {
+    background: white; border: 1px solid #e5e5e3;
+    border-radius: 12px; padding: 20px; margin-bottom: 16px;
+  }
+  .panel h2 {
+    font-size: 14px; font-weight: 600; margin: 0 0 12px 0;
+    color: #555; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  button {
+    padding: 10px 16px; font-size: 14px; font-weight: 500;
+    border: 1px solid #d4d4d2; border-radius: 8px;
+    background: white; color: #1c1c1c; cursor: pointer;
+  }
+  button:hover { background: #f5f5f4; }
+  button.primary { background: #1a3e7e; color: white; border-color: #1a3e7e; }
+  button.primary:hover { background: #143263; }
+  button.danger  { background: #a32d2d; color: white; border-color: #a32d2d; }
+  input[type="file"] { font-size: 14px; }
+  #mic-status {
+    margin-top: 12px; padding: 8px 12px; border-radius: 6px;
+    font-size: 13px; background: #fafaf9; color: #555;
+  }
+  .recording { background: #ffe8e8 !important; color: #a32d2d !important; }
+</style>
 </head>
-
 <body>
   <h1>ClassCast — Instructor</h1>
 
   <div class="panel">
     <h2>Upload slides (PPTX / PDF)</h2>
     <div style="font-size: 13px; color: #666; margin-bottom: 12px;">
-      Upload presentation slides. Each slide will be processed one by one (bypassing audio) to generate a summary and
-      visual for the students.
+      Upload presentation slides. Each slide will be processed one by one (bypassing audio) to generate a summary and visual for the students.
     </div>
-    <input type="file" id="slide-input"
-      accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,.pdf,application/pdf" />
+    <input type="file" id="slide-input" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,.pdf,application/pdf" />
     <button id="upload-slides-btn" class="primary">Process Slides</button>
     <div id="slide-status" style="margin-top: 12px; font-size: 13px; color: #555;"></div>
   </div>
@@ -116,75 +61,73 @@
     <button id="mic-start" class="primary">Start mic</button>
     <button id="mic-stop" class="danger" disabled>Stop mic</button>
     <div id="mic-status">Mic idle</div>
-
+    
     <div style="margin-top: 16px; border-top: 1px solid #e5e5e3; padding-top: 16px;">
-      <div style="font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; margin-bottom: 8px;">What
-        the AI hears:</div>
-      <div id="live-transcript"
-        style="font-size: 13px; color: #444; min-height: 40px; background: #fafaf9; padding: 10px; border-radius: 6px; border: 1px solid #e5e5e3; font-style: italic;">
+      <div style="font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; margin-bottom: 8px;">What the AI hears:</div>
+      <div id="live-transcript" style="font-size: 13px; color: #444; min-height: 40px; background: #fafaf9; padding: 10px; border-radius: 6px; border: 1px solid #e5e5e3; font-style: italic;">
         Nothing yet...
       </div>
     </div>
   </div>
 
-  <script>
-    // Automatically use local backend if running locally, otherwise use Render URL
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const BACKEND_URL = isLocal ? 'http://localhost:8000' : 'https://classcast-lecture-assistant.onrender.com';
-    const WS_URL = isLocal ? 'ws://localhost:8000/ingest/ws' : 'wss://classcast-lecture-assistant.onrender.com/ingest/ws';
+<script>
+  // Automatically use local backend if running locally, otherwise use Render URL
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const BACKEND_URL = isLocal ? 'http://localhost:8000' : 'https://classcast-backend.onrender.com';
+  const WS_URL = isLocal ? 'ws://localhost:8000/ingest/ws' : 'wss://classcast-backend.onrender.com/ingest/ws';
 
-    // ---- File upload ----
-    document.getElementById('upload-btn').addEventListener('click', async () => {
-      const fileInput = document.getElementById('file-input');
-      const statusEl = document.getElementById('upload-status');
-      if (!fileInput.files[0]) {
-        statusEl.textContent = 'Please choose a WAV file first.';
-        return;
-      }
-      const formData = new FormData();
-      formData.append('file', fileInput.files[0]);
-      statusEl.textContent = 'Uploading...';
-      try {
-        const r = await fetch(`${BACKEND_URL}/ingest/audio`, { method: 'POST', body: formData });
-        const j = await r.json();
-        statusEl.textContent = `Queued: ${j.size_bytes} bytes — watch the student view for events.`;
-      } catch (e) {
-        statusEl.textContent = `Upload failed: ${e.message}`;
-      }
-    });
+  // ---- File upload ----
+  document.getElementById('upload-btn').addEventListener('click', async () => {
+    const fileInput = document.getElementById('file-input');
+    const statusEl = document.getElementById('upload-status');
+    if (!fileInput.files[0]) {
+      statusEl.textContent = 'Please choose a WAV file first.';
+      return;
+    }
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    statusEl.textContent = 'Uploading...';
+    try {
+      const r = await fetch(`${BACKEND_URL}/ingest/audio`, { method: 'POST', body: formData });
+      const j = await r.json();
+      statusEl.textContent = `Queued: ${j.size_bytes} bytes — watch the student view for events.`;
+    } catch (e) {
+      statusEl.textContent = `Upload failed: ${e.message}`;
+    }
+  });
 
-    // ---- Slide upload ----
-    document.getElementById('upload-slides-btn').addEventListener('click', async () => {
-      const slideInput = document.getElementById('slide-input');
-      const statusEl = document.getElementById('slide-status');
-      if (!slideInput.files[0]) {
-        statusEl.textContent = 'Please choose a PPTX or PDF file first.';
-        return;
+  // ---- Slide upload ----
+  document.getElementById('upload-slides-btn').addEventListener('click', async () => {
+    const slideInput = document.getElementById('slide-input');
+    const statusEl = document.getElementById('slide-status');
+    if (!slideInput.files[0]) {
+      statusEl.textContent = 'Please choose a PPTX or PDF file first.';
+      return;
+    }
+    const formData = new FormData();
+    formData.append('file', slideInput.files[0]);
+    statusEl.textContent = 'Uploading and extracting text...';
+    try {
+      const r = await fetch(`${BACKEND_URL}/ingest/slides`, { method: 'POST', body: formData });
+      const j = await r.json();
+      if (r.ok) {
+        statusEl.textContent = `${j.message} Watch the student view for events.`;
+      } else {
+        statusEl.textContent = `Error: ${j.detail || j.message}`;
       }
-      const formData = new FormData();
-      formData.append('file', slideInput.files[0]);
-      statusEl.textContent = 'Uploading and extracting text...';
-      try {
-        const r = await fetch(`${BACKEND_URL}/ingest/slides`, { method: 'POST', body: formData });
-        const j = await r.json();
-        if (r.ok) {
-          statusEl.textContent = `${j.message} Watch the student view for events.`;
-        } else {
-          statusEl.textContent = `Error: ${j.detail || j.message}`;
-        }
-      } catch (e) {
-        statusEl.textContent = `Upload failed: ${e.message}`;
-      }
-    });
+    } catch (e) {
+      statusEl.textContent = `Upload failed: ${e.message}`;
+    }
+  });
 
-    // ---- Live mic via AudioWorklet ----
-    let audioContext = null;
-    let mediaStream = null;
-    let workletNode = null;
-    let socket = null;
+  // ---- Live mic via AudioWorklet ----
+  let audioContext = null;
+  let mediaStream = null;
+  let workletNode = null;
+  let socket = null;
 
-    // AudioWorklet processor: downsamples to 16kHz mono int16 and posts to main thread
-    const workletCode = `
+  // AudioWorklet processor: downsamples to 16kHz mono int16 and posts to main thread
+  const workletCode = `
     class PCMProcessor extends AudioWorkletProcessor {
       constructor() {
         super();
@@ -218,78 +161,77 @@
     registerProcessor('pcm-processor', PCMProcessor);
   `;
 
-    function setMicStatus(text, recording = false) {
-      const el = document.getElementById('mic-status');
-      el.textContent = text;
-      el.className = recording ? 'recording' : '';
+  function setMicStatus(text, recording = false) {
+    const el = document.getElementById('mic-status');
+    el.textContent = text;
+    el.className = recording ? 'recording' : '';
+  }
+
+  document.getElementById('mic-start').addEventListener('click', async () => {
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+        },
+      });
+
+      audioContext = new AudioContext();
+      const blob = new Blob([workletCode], { type: 'application/javascript' });
+      const workletUrl = URL.createObjectURL(blob);
+      await audioContext.audioWorklet.addModule(workletUrl);
+
+      const source = audioContext.createMediaStreamSource(mediaStream);
+      workletNode = new AudioWorkletNode(audioContext, 'pcm-processor');
+      source.connect(workletNode);
+      // Note: don't connect workletNode to destination — we don't want to play it back
+
+      socket = new WebSocket(WS_URL);
+      socket.binaryType = 'arraybuffer';
+
+      socket.addEventListener('open', () => {
+        setMicStatus('Recording — speaking now will appear in the student view', true);
+      });
+      socket.addEventListener('error', () => setMicStatus('WebSocket error', false));
+      socket.addEventListener('close', () => setMicStatus('Disconnected', false));
+
+      workletNode.port.onmessage = (event) => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(event.data);
+        }
+      };
+
+      document.getElementById('mic-start').disabled = true;
+      document.getElementById('mic-stop').disabled = false;
+    } catch (e) {
+      setMicStatus(`Mic error: ${e.message}`, false);
     }
+  });
 
-    document.getElementById('mic-start').addEventListener('click', async () => {
-      try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            channelCount: 1,
-            echoCancellation: true,
-            noiseSuppression: true,
-          },
-        });
+  document.getElementById('mic-stop').addEventListener('click', () => {
+    if (workletNode) { workletNode.disconnect(); workletNode = null; }
+    if (audioContext) { audioContext.close(); audioContext = null; }
+    if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+    if (socket) { socket.close(); socket = null; }
+    setMicStatus('Mic idle', false);
+    document.getElementById('mic-start').disabled = false;
+    document.getElementById('mic-stop').disabled = true;
+  });
 
-        audioContext = new AudioContext();
-        const blob = new Blob([workletCode], { type: 'application/javascript' });
-        const workletUrl = URL.createObjectURL(blob);
-        await audioContext.audioWorklet.addModule(workletUrl);
+  // ---- Listen to SSE for live transcription ----
+  const sse = new EventSource(`${BACKEND_URL}/stream`);
+  const transcriptEl = document.getElementById('live-transcript');
 
-        const source = audioContext.createMediaStreamSource(mediaStream);
-        workletNode = new AudioWorkletNode(audioContext, 'pcm-processor');
-        source.connect(workletNode);
-        // Note: don't connect workletNode to destination — we don't want to play it back
+  sse.addEventListener('transcript', (e) => {
+    const data = JSON.parse(e.data);
+    if (transcriptEl.textContent.includes('Nothing yet')) {
+      transcriptEl.textContent = '';
+    }
+    // Append the new transcript
+    transcriptEl.innerHTML += `<span style="margin-right: 4px;">${data.text}</span>`;
+  });
 
-        socket = new WebSocket(WS_URL);
-        socket.binaryType = 'arraybuffer';
-
-        socket.addEventListener('open', () => {
-          setMicStatus('Recording — speaking now will appear in the student view', true);
-        });
-        socket.addEventListener('error', () => setMicStatus('WebSocket error', false));
-        socket.addEventListener('close', () => setMicStatus('Disconnected', false));
-
-        workletNode.port.onmessage = (event) => {
-          if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(event.data);
-          }
-        };
-
-        document.getElementById('mic-start').disabled = true;
-        document.getElementById('mic-stop').disabled = false;
-      } catch (e) {
-        setMicStatus(`Mic error: ${e.message}`, false);
-      }
-    });
-
-    document.getElementById('mic-stop').addEventListener('click', () => {
-      if (workletNode) { workletNode.disconnect(); workletNode = null; }
-      if (audioContext) { audioContext.close(); audioContext = null; }
-      if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
-      if (socket) { socket.close(); socket = null; }
-      setMicStatus('Mic idle', false);
-      document.getElementById('mic-start').disabled = false;
-      document.getElementById('mic-stop').disabled = true;
-    });
-
-    // ---- Listen to SSE for live transcription ----
-    const sse = new EventSource(`${BACKEND_URL}/stream`);
-    const transcriptEl = document.getElementById('live-transcript');
-
-    sse.addEventListener('transcript', (e) => {
-      const data = JSON.parse(e.data);
-      if (transcriptEl.textContent.includes('Nothing yet')) {
-        transcriptEl.textContent = '';
-      }
-      // Append the new transcript
-      transcriptEl.innerHTML += `<span style="margin-right: 4px;">${data.text}</span>`;
-    });
-
-  </script>
+</script>
 </body>
-
 </html>
