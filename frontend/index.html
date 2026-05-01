@@ -104,6 +104,11 @@
     <div id="notebook-list" style="padding: 20px; overflow-y: auto; flex-grow: 1;">
       <div style="color: #999; font-size: 14px; text-align: center; margin-top: 20px;">Notebook is empty.</div>
     </div>
+    <div style="padding: 20px; border-top: 1px solid #e5e5e3; background: white; display: flex; gap: 10px;">
+      <button id="export-notebook-btn" style="flex: 1; padding: 10px; font-size: 13px; font-weight: 600; border-radius: 6px; border: 1px solid #1a3e7e; background: #e8efff; color: #1a3e7e; cursor: pointer;">Export (.json)</button>
+      <button id="import-notebook-btn" style="flex: 1; padding: 10px; font-size: 13px; font-weight: 600; border-radius: 6px; border: 1px solid #555; background: #fafaf9; color: #555; cursor: pointer;">Import (.json)</button>
+      <input type="file" id="import-notebook-file" accept=".json" style="display: none;">
+    </div>
   </div>
 
   <!-- Modal Overlay -->
@@ -266,6 +271,59 @@
 
   // --- Event Listeners ---
   document.getElementById('save-concept-btn').addEventListener('click', saveToNotebook);
+
+  document.getElementById('export-notebook-btn').addEventListener('click', () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('classcast_notebook') || '[]');
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "classcast_notebook.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  });
+
+  document.getElementById('import-notebook-btn').addEventListener('click', () => {
+    document.getElementById('import-notebook-file').click();
+  });
+
+  document.getElementById('import-notebook-file').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedData = JSON.parse(e.target.result);
+        if (!Array.isArray(importedData)) throw new Error("Invalid format");
+        
+        const currentNotebook = getNotebook();
+        
+        // Append imported items
+        importedData.forEach(importedItem => {
+          let newTitle = importedItem.title;
+          // Check if this exact title already exists in the notebook
+          const isDuplicate = currentNotebook.some(item => item.title === importedItem.title);
+          if (isDuplicate) {
+            newTitle = `${importedItem.title} (1)`;
+          }
+          
+          currentNotebook.push({
+            ...importedItem,
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+            title: newTitle
+          });
+        });
+        
+        localStorage.setItem('classcast_notebook', JSON.stringify(currentNotebook));
+        renderNotebookList();
+        alert(`Successfully imported ${importedData.length} concepts!`);
+      } catch (err) {
+        alert("Failed to import: Invalid JSON file.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = ''; // Reset input so same file can be selected again
+  });
   
   document.getElementById('notebook-menu-btn').addEventListener('click', () => {
     renderNotebookList();
