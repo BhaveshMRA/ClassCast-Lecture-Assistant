@@ -31,7 +31,11 @@ Instructor mic / WAV upload
     └─ visual_generator   ← Claude Haiku 4.5 → animated HTML snippet (~2-3 s)
          │ SSE events
          ▼
-  Student browsers        ← EventSource auto-reconnects; no WebSocket needed
+    [broadcaster] ───────► [SQLite classcast.db] ← Persistent history storage
+         │ live feed              │
+         ▼                        │ GET /history on load
+  Student browsers ◄──────────────┘
+  (Notebook uses localStorage)
 ```
 
 ---
