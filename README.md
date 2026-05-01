@@ -1,5 +1,8 @@
 # ClassCast
 
+
+## Built with AI - Completely (Brain Strom by StevenSolvers) - Bhavesh Maurya, Kumar Saurabh, Vanshika Kukreja
+
 > Real-time AI visual aid for live lectures.
 
 ClassCast listens to a professor speak, transcribes the audio locally with [faster-whisper](https://github.com/SYSTRAN/faster-whisper), identifies the key concept being taught, and instantly broadcasts an animated HTML visual + plain-English summary to every connected student — no app install, no account, just a browser tab.
@@ -228,7 +231,7 @@ Tests use mocked AI responses — **no API key required**.
 - No speaker diarization — assumes professor-only mic input
 
 ---
-## 
+## Built with AI - Completely (Brain Strom by StevenSolvers
 ## License
 
 MIT
