@@ -1,61 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<title>ClassCast — Student View</title>
-<style>
-  * { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    margin: 0; padding: 24px;
-    background: #f5f5f4; color: #1c1c1c;
-    max-width: 900px; margin: 0 auto;
-  }
-  h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px 0; }
-  .subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
-  .status {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 6px 12px; border-radius: 999px;
-    font-size: 13px; font-weight: 500; margin-bottom: 24px;
-  }
-  .status.connected { background: #d4f4dd; color: #1a5e2e; }
-  .status.connecting { background: #fff4d4; color: #7a5d00; }
-  .status.disconnected { background: #f8d7d7; color: #7a1a1a; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
-  .panel {
-    background: white; border: 1px solid #e5e5e3;
-    border-radius: 12px; padding: 20px; margin-bottom: 16px;
-  }
-  .panel h2 {
-    font-size: 14px; font-weight: 600; margin: 0 0 12px 0;
-    color: #555; text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  #log {
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 12px; max-height: 400px; overflow-y: auto;
-    background: #fafaf9; border-radius: 8px; padding: 12px;
-  }
-  .log-entry { padding: 4px 0; border-bottom: 1px solid #eee; }
-  .log-entry:last-child { border-bottom: none; }
-  .log-time { color: #999; }
-  .log-type-heartbeat { color: #1a5e2e; }
-  .log-type-test     { color: #1a3e7e; font-weight: 600; }
-  .log-type-summary  { color: #5a1a7e; font-weight: 600; }
-  .log-type-visual   { color: #7e3e1a; font-weight: 600; }
-  .log-type-audit    { color: #555;    font-style: italic; }
-  #visual-container {
-    min-height: 200px;
-    display: flex; align-items: center; justify-content: center;
-    color: #999; font-size: 14px;
-  }
-  #visual-container iframe { width: 100%; min-height: 400px; border: none; }
-  #summary-text { color: #1c1c1c; font-size: 16px; line-height: 1.5; }
-  #summary-text:empty::before {
-    content: "Waiting for the professor to speak...";
-    color: #999; font-size: 14px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>ClassCast — Student View</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #f5f5f4;
+      color: #1c1c1c;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+
+    .status.connected {
+      background: #d4f4dd;
+      color: #1a5e2e;
+    }
+
+    .status.connecting {
+      background: #fff4d4;
+      color: #7a5d00;
+    }
+
+    .status.disconnected {
+      background: #f8d7d7;
+      color: #7a1a1a;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid #e5e5e3;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .panel h2 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    #log {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      background: #fafaf9;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .log-entry {
+      padding: 4px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+
+    .log-time {
+      color: #999;
+    }
+
+    .log-type-heartbeat {
+      color: #1a5e2e;
+    }
+
+    .log-type-test {
+      color: #1a3e7e;
+      font-weight: 600;
+    }
+
+    .log-type-summary {
+      color: #5a1a7e;
+      font-weight: 600;
+    }
+
+    .log-type-visual {
+      color: #7e3e1a;
+      font-weight: 600;
+    }
+
+    .log-type-audit {
+      color: #555;
+      font-style: italic;
+    }
+
+    #visual-container {
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 14px;
+    }
+
+    #visual-container iframe {
+      width: 100%;
+      min-height: 400px;
+      border: none;
+    }
+
+    #summary-text {
+      color: #1c1c1c;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    #summary-text:empty::before {
+      content: "Waiting for the professor to speak...";
+      color: #999;
+      font-size: 14px;
+    }
+  </style>
 </head>
+
 <body>
   <h1>ClassCast</h1>
   <div class="subtitle">Student view</div>
@@ -64,7 +165,8 @@
     <span class="dot"></span>
     <span id="status-text">Connecting...</span>
   </div>
-  <div id="mic-status-badge" style="display: none; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: #e8f5e9; color: #2e7d32; margin-bottom: 24px; vertical-align: top;">
+  <div id="mic-status-badge"
+    style="display: none; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: #e8f5e9; color: #2e7d32; margin-bottom: 24px; vertical-align: top;">
     <span style="width: 8px; height: 8px; background: #4caf50; border-radius: 50%;"></span>
     Professor Mic ON
   </div>
@@ -84,90 +186,91 @@
     <div id="log"></div>
   </div>
 
-<script>
-  const statusEl = document.getElementById('status');
-  const statusTextEl = document.getElementById('status-text');
-  const logEl = document.getElementById('log');
-  const summaryEl = document.getElementById('summary-text');
-  const visualEl = document.getElementById('visual-container');
+  <script>
+    const statusEl = document.getElementById('status');
+    const statusTextEl = document.getElementById('status-text');
+    const logEl = document.getElementById('log');
+    const summaryEl = document.getElementById('summary-text');
+    const visualEl = document.getElementById('visual-container');
 
-  // Automatically use local backend if running locally, otherwise use Render URL
-  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const BACKEND_URL = isLocal ? 'http://localhost:8000' : 'https://classcast-backend.onrender.com';
+    // Automatically use local backend if running locally, otherwise use Render URL
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const BACKEND_URL = isLocal ? 'http://localhost:8000' : 'https://classcast-lecture-assistant.onrender.com';
 
-  function setStatus(state, text) {
-    statusEl.className = `status ${state}`;
-    statusTextEl.textContent = text;
-  }
+    function setStatus(state, text) {
+      statusEl.className = `status ${state}`;
+      statusTextEl.textContent = text;
+    }
 
-  function addLog(type, data) {
-    const time = new Date().toLocaleTimeString();
-    const entry = document.createElement('div');
-    entry.className = 'log-entry';
-    entry.innerHTML = `
+    function addLog(type, data) {
+      const time = new Date().toLocaleTimeString();
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `
       <span class="log-time">${time}</span>
       <span class="log-type-${type}">[${type}]</span>
       <span>${JSON.stringify(data)}</span>
     `;
-    logEl.insertBefore(entry, logEl.firstChild);
-    while (logEl.children.length > 50) logEl.removeChild(logEl.lastChild);
-  }
+      logEl.insertBefore(entry, logEl.firstChild);
+      while (logEl.children.length > 50) logEl.removeChild(logEl.lastChild);
+    }
 
-  function connect() {
-    setStatus('connecting', 'Connecting...');
-    const source = new EventSource(`${BACKEND_URL}/stream`);
+    function connect() {
+      setStatus('connecting', 'Connecting...');
+      const source = new EventSource(`${BACKEND_URL}/stream`);
 
-    source.addEventListener('open', () => {
-      setStatus('connected', 'Connected');
-    });
+      source.addEventListener('open', () => {
+        setStatus('connected', 'Connected');
+      });
 
-    source.addEventListener('heartbeat', (event) => {
-      const data = JSON.parse(event.data);
-      addLog('heartbeat', data);
-      setStatus('connected', `Connected — ${data.clients} client(s), tick ${data.tick}`);
-    });
+      source.addEventListener('heartbeat', (event) => {
+        const data = JSON.parse(event.data);
+        addLog('heartbeat', data);
+        setStatus('connected', `Connected — ${data.clients} client(s), tick ${data.tick}`);
+      });
 
-    source.addEventListener('test', (event) => {
-      addLog('test', JSON.parse(event.data));
-    });
+      source.addEventListener('test', (event) => {
+        addLog('test', JSON.parse(event.data));
+      });
 
-    source.addEventListener('summary', (event) => {
-      const data = JSON.parse(event.data);
-      addLog('summary', { concept: data.concept });
-      summaryEl.textContent = data.text;
-    });
+      source.addEventListener('summary', (event) => {
+        const data = JSON.parse(event.data);
+        addLog('summary', { concept: data.concept });
+        summaryEl.textContent = data.text;
+      });
 
-    source.addEventListener('visual', (event) => {
-      const data = JSON.parse(event.data);
-      addLog('visual', { concept: data.concept });
-      // Sandboxed iframe: scripts allowed, but no same-origin access
-      visualEl.innerHTML = '';
-      const iframe = document.createElement('iframe');
-      iframe.sandbox = 'allow-scripts';
-      iframe.srcdoc = data.html;
-      visualEl.appendChild(iframe);
-    });
+      source.addEventListener('visual', (event) => {
+        const data = JSON.parse(event.data);
+        addLog('visual', { concept: data.concept });
+        // Sandboxed iframe: scripts allowed, but no same-origin access
+        visualEl.innerHTML = '';
+        const iframe = document.createElement('iframe');
+        iframe.sandbox = 'allow-scripts';
+        iframe.srcdoc = data.html;
+        visualEl.appendChild(iframe);
+      });
 
-    source.addEventListener('audit', (event) => {
-      addLog('audit', JSON.parse(event.data));
-    });
+      source.addEventListener('audit', (event) => {
+        addLog('audit', JSON.parse(event.data));
+      });
 
-    source.addEventListener('mic_status', (event) => {
-      const data = JSON.parse(event.data);
-      const badge = document.getElementById('mic-status-badge');
-      if (data.status === 'on') {
-        badge.style.display = 'inline-flex';
-      } else {
-        badge.style.display = 'none';
-      }
-    });
+      source.addEventListener('mic_status', (event) => {
+        const data = JSON.parse(event.data);
+        const badge = document.getElementById('mic-status-badge');
+        if (data.status === 'on') {
+          badge.style.display = 'inline-flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      });
 
-    source.addEventListener('error', () => {
-      setStatus('disconnected', 'Disconnected — reconnecting...');
-    });
-  }
+      source.addEventListener('error', () => {
+        setStatus('disconnected', 'Disconnected — reconnecting...');
+      });
+    }
 
-  connect();
-</script>
+    connect();
+  </script>
 </body>
+
 </html>
