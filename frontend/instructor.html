@@ -71,10 +71,10 @@
   </div>
 
 <script>
-  // Automatically use local backend if running locally, otherwise use Render URL
-  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const BACKEND_URL = isLocal ? 'http://localhost:8000' : 'https://classcast-backend.onrender.com';
-  const WS_URL = isLocal ? 'ws://localhost:8000/ingest/ws' : 'wss://classcast-backend.onrender.com/ingest/ws';
+  // ⚠️  This must always point to the teacher laptop — keep as localhost
+  //     if running the backend on this same machine.
+  const BACKEND_URL = 'http://localhost:8000';
+  const WS_URL = 'ws://localhost:8000/ingest/ws';
 
   // ---- File upload ----
   document.getElementById('upload-btn').addEventListener('click', async () => {

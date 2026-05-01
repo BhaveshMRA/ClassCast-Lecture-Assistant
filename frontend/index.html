@@ -91,9 +91,8 @@
   const summaryEl = document.getElementById('summary-text');
   const visualEl = document.getElementById('visual-container');
 
-  // Automatically use local backend if running locally, otherwise use Render URL
-  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const BACKEND_URL = isLocal ? 'http://localhost:8000' : 'https://classcast-backend.onrender.com';
+  // ⚠️  Change this to the teacher laptop's IP when on two machines
+  const BACKEND_URL = 'http://10.156.129.19:8000';
 
   function setStatus(state, text) {
     statusEl.className = `status ${state}`;
