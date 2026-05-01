@@ -14,6 +14,8 @@ import json
 import logging
 from typing import Any, AsyncIterator
 
+from app import db
+
 logger = logging.getLogger(__name__)
 
 
@@ -46,6 +48,11 @@ class Broadcaster:
         data: any JSON-serializable dict
         """
         message = {"type": event_type, "data": data}
+        
+        # Intercept and persist important events to SQLite
+        if event_type in ["summary", "visual", "transcript", "audit"]:
+            db.insert_event(event_type, data)
+            
         async with self._lock:
             targets = list(self._subscribers)
 

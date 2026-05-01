@@ -112,6 +112,40 @@
     while (logEl.children.length > 50) logEl.removeChild(logEl.lastChild);
   }
 
+  function handleSummary(data) {
+    addLog('summary', { concept: data.concept });
+    summaryEl.textContent = data.text;
+  }
+
+  function handleVisual(data) {
+    addLog('visual', { concept: data.concept });
+    visualEl.innerHTML = '';
+    const iframe = document.createElement('iframe');
+    iframe.sandbox = 'allow-scripts';
+    iframe.srcdoc = data.html;
+    visualEl.appendChild(iframe);
+  }
+
+  function handleAudit(data) {
+    addLog('audit', data);
+  }
+
+  async function loadHistory() {
+    try {
+      const r = await fetch(`${BACKEND_URL}/history`);
+      const j = await r.json();
+      if (j.events) {
+        for (const evt of j.events) {
+          if (evt.event_type === 'summary') handleSummary(evt.data);
+          if (evt.event_type === 'visual') handleVisual(evt.data);
+          if (evt.event_type === 'audit') handleAudit(evt.data);
+        }
+      }
+    } catch (e) {
+      console.warn("Could not load history", e);
+    }
+  }
+
   function connect() {
     setStatus('connecting', 'Connecting...');
     const source = new EventSource(`${BACKEND_URL}/stream`);
@@ -131,24 +165,15 @@
     });
 
     source.addEventListener('summary', (event) => {
-      const data = JSON.parse(event.data);
-      addLog('summary', { concept: data.concept });
-      summaryEl.textContent = data.text;
+      handleSummary(JSON.parse(event.data));
     });
 
     source.addEventListener('visual', (event) => {
-      const data = JSON.parse(event.data);
-      addLog('visual', { concept: data.concept });
-      // Sandboxed iframe: scripts allowed, but no same-origin access
-      visualEl.innerHTML = '';
-      const iframe = document.createElement('iframe');
-      iframe.sandbox = 'allow-scripts';
-      iframe.srcdoc = data.html;
-      visualEl.appendChild(iframe);
+      handleVisual(JSON.parse(event.data));
     });
 
     source.addEventListener('audit', (event) => {
-      addLog('audit', JSON.parse(event.data));
+      handleAudit(JSON.parse(event.data));
     });
 
     source.addEventListener('mic_status', (event) => {
@@ -166,7 +191,9 @@
     });
   }
 
-  connect();
+  loadHistory().then(() => {
+    connect();
+  });
 </script>
 </body>
 </html>

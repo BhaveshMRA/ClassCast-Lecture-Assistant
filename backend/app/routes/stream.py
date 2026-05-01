@@ -8,6 +8,7 @@ from fastapi import APIRouter, Request
 from sse_starlette.sse import EventSourceResponse
 
 from app.broadcaster import broadcaster, sse_event_generator
+from app import db
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -31,3 +32,12 @@ async def stream(request: Request):
             await broadcaster.unsubscribe(queue)
 
     return EventSourceResponse(event_stream())
+
+@router.get("/history")
+async def history():
+    """
+    Returns the most recent events from the database.
+    Used by the frontend to populate the UI on initial load.
+    """
+    events = db.get_recent_events(limit=50)
+    return {"status": "ok", "events": events}
