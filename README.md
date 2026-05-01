@@ -6,6 +6,11 @@ ClassCast listens to a professor speak, transcribes the audio locally with [fast
 
 It also supports direct PPTX/PDF slide uploads, generating real-time summaries and visuals for each slide bypassing the audio transcription phase.
 
+### New Hackathon Features Added
+- **Long-Context RAG**: Upload course syllabus/notes to ground AI outputs in the professor's exact terminology.
+- **Persistent SQLite History**: Lecture events are securely saved locally (`classcast.db`), allowing students to refresh their browser without losing the visual timeline.
+- **Student Notebook (Export/Import)**: Students can manually save concepts to a private sidebar notebook (via `localStorage`), view them in a modal, and **Export/Import** their notebook as a `.json` file for future study sessions.
+
 ---
 
 ## How it works
@@ -170,6 +175,7 @@ Copy `.env.example` to `.env` and fill in:
 | `POST` | `/ingest/slides` | Upload a PPTX or PDF file |
 | `POST` | `/ingest/syllabus`| Upload Course Syllabus/Notes for RAG context |
 | `WS` | `/ingest/ws` | Live mic stream (raw int16 PCM @ 16 kHz) |
+| `GET` | `/history` | Fetch the 50 most recent broadcast events (SQLite) |
 | `GET` | `/health` | Health check + connected client count |
 
 ---
@@ -215,7 +221,6 @@ Tests use mocked AI responses — **no API key required**.
 
 - Single classroom only — no per-room isolation
 - No authentication — open to anyone on the network
-- No persistent storage — audit events are broadcast-only, in-memory
 - No speaker diarization — assumes professor-only mic input
 
 ---
