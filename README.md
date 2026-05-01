@@ -228,7 +228,7 @@ Tests use mocked AI responses — **no API key required**.
 - No speaker diarization — assumes professor-only mic input
 
 ---
-
+## 
 ## License
 
 MIT
