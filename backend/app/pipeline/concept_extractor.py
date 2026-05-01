@@ -8,11 +8,13 @@ import logging
 
 from app.services.gemini import GeminiService
 from app.pipeline.state import PipelineState
+from app.course_state import course_state
 
 logger = logging.getLogger(__name__)
 
 PROMPT_TEMPLATE = """You are analyzing a snippet of a college lecture.
 Identify the key concept being taught (if any) and classify the snippet.
+{syllabus_context}
 
 Snippet:
 \"\"\"{text}\"\"\"
@@ -42,7 +44,11 @@ async def concept_extractor_node(state: PipelineState) -> dict:
         return {"concept": None}
 
     text = state["accumulated_text"]
-    prompt = PROMPT_TEMPLATE.format(text=text)
+    
+    syllabus = course_state.get_syllabus()
+    syllabus_context = f"\nCourse Material Context (use this to correctly identify terminology):\n{syllabus}\n" if syllabus else ""
+    
+    prompt = PROMPT_TEMPLATE.format(text=text, syllabus_context=syllabus_context)
 
     try:
         result = await GeminiService.generate_json("flash", prompt)

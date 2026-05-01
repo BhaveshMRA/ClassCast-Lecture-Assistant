@@ -13,12 +13,14 @@ from app.services.gemini import GeminiService
 from app.broadcaster import broadcaster
 from app.pipeline.state import PipelineState
 from app.pipeline.summary_generator import summary_generator_node
+from app.course_state import course_state
 
 logger = logging.getLogger(__name__)
 
 VISUAL_PROMPT_TEMPLATE = """Generate a self-contained HTML snippet that visually demonstrates this concept.
 
 Concept: {concept}
+{syllabus_context}
 Lecture context:
 \"\"\"{text}\"\"\"
 
@@ -54,8 +56,11 @@ async def _generate_and_publish_visual(
     concept: str | None, text: str, timestamp: str
 ) -> str:
     """Generate the HTML, publish a `visual` event, return the HTML."""
+    syllabus = course_state.get_syllabus()
+    syllabus_context = f"Course Material Context (align your visual with this):\n{syllabus}\n" if syllabus else ""
+    
     prompt = VISUAL_PROMPT_TEMPLATE.format(
-        concept=concept or "the concept just discussed", text=text
+        concept=concept or "the concept just discussed", text=text, syllabus_context=syllabus_context
     )
     try:
         html = await GeminiService.generate("pro", prompt, max_output_tokens=4096)

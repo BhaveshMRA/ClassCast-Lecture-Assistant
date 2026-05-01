@@ -18,6 +18,7 @@ Instructor mic / WAV upload
          │ transcript chunks
          ▼
   [LangGraph pipeline] ◄── Instructor Slide Upload (PPTX/PDF)
+                     ◄── Syllabus / Course Notes Upload (RAG Context)
     ├─ batch_accumulator  ← buffers 2-3 sentences
     ├─ concept_extractor  ← Gemini 2.5 Flash classifies: TECHNICAL / EXAMPLE / ADMIN / JOKE
     ├─ decision_router    ← skips jokes & admin; routes to summarize or visualize
@@ -167,6 +168,7 @@ Copy `.env.example` to `.env` and fill in:
 | `GET` | `/stream` | SSE stream — students connect here |
 | `POST` | `/ingest/audio` | Upload a WAV file (multipart/form-data) |
 | `POST` | `/ingest/slides` | Upload a PPTX or PDF file |
+| `POST` | `/ingest/syllabus`| Upload Course Syllabus/Notes for RAG context |
 | `WS` | `/ingest/ws` | Live mic stream (raw int16 PCM @ 16 kHz) |
 | `GET` | `/health` | Health check + connected client count |
 
@@ -214,7 +216,6 @@ Tests use mocked AI responses — **no API key required**.
 - Single classroom only — no per-room isolation
 - No authentication — open to anyone on the network
 - No persistent storage — audit events are broadcast-only, in-memory
-- No RAG — concept extractor uses AI only, not course materials
 - No speaker diarization — assumes professor-only mic input
 
 ---

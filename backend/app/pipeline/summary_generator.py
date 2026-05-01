@@ -11,6 +11,7 @@ import logging
 from app.services.gemini import GeminiService
 from app.broadcaster import broadcaster
 from app.pipeline.state import PipelineState
+from app.course_state import course_state
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ PROMPT_TEMPLATE = """Summarize this lecture excerpt in 2-3 plain English sentenc
 Focus on what the professor is teaching, not how they're saying it.
 Avoid jargon when possible; if jargon is unavoidable, briefly clarify.
 Output only the summary text — no preamble, no markdown.
+{syllabus_context}
 
 Concept: {concept}
 
@@ -33,7 +35,10 @@ async def summary_generator_node(state: PipelineState) -> dict:
     concept = state.get("concept", "this concept")
     timestamp = state["timestamp"]
 
-    prompt = PROMPT_TEMPLATE.format(text=text, concept=concept or "this concept")
+    syllabus = course_state.get_syllabus()
+    syllabus_context = f"\nUse this Course Material Context for accurate terminology:\n{syllabus}\n" if syllabus else ""
+
+    prompt = PROMPT_TEMPLATE.format(text=text, concept=concept or "this concept", syllabus_context=syllabus_context)
 
     try:
         summary = await GeminiService.generate("flash", prompt)
