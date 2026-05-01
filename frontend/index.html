@@ -272,14 +272,23 @@
   // --- Event Listeners ---
   document.getElementById('save-concept-btn').addEventListener('click', saveToNotebook);
 
-  document.getElementById('export-notebook-btn').addEventListener('click', () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('classcast_notebook') || '[]');
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "classcast_notebook.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+  document.getElementById('export-notebook-btn').addEventListener('click', async () => {
+    try {
+      // Open the "Save As" dialog and ask for a path
+      const fileHandle = await window.showSaveFilePicker({
+        suggestedName: 'classcast_notebook.json',
+        types: [{ description: 'JSON File', accept: {'application/json': ['.json']} }],
+      });
+      
+      // Write the data to the path they chose
+      const writable = await fileHandle.createWritable();
+      await writable.write(localStorage.getItem('classcast_notebook') || '[]');
+      await writable.close();
+      
+      alert("Notebook exported successfully!");
+    } catch (e) {
+      console.log("User cancelled the save dialog or API not supported");
+    }
   });
 
   document.getElementById('import-notebook-btn').addEventListener('click', () => {
